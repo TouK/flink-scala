@@ -2,7 +2,7 @@ package org.apache.flink.runtime.types
 
 import com.twitter.chill.{Input, KSerializer, Kryo, Output}
 
-import _root_.java.util.{List => JList, Map => JMap, Set => JSet}
+import java.util.{List => JList, Map => JMap, Set => JSet}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
