@@ -1,0 +1,10 @@
+.idea/
+target/
+*.iml
+.*orig
+dist/
+.bloop
+.vscode
+.metals
+*.bsp
+
