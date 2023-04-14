@@ -5,6 +5,7 @@ ThisBuild / scalaVersion := "2.13.10"
 name := "flink-scala-2.13"
 
 lazy val flinkV = "1.16.1"
+lazy val scalaTestV = "3.2.15"
 
 
 assembly / artifact := {
@@ -49,6 +50,8 @@ lazy val root = (project in file("."))
         "org.apache.flink" % "flink-streaming-java" % flinkV % "provided",
         "com.twitter" %% "chill" % "0.9.5" exclude("com.esotericsoftware", "kryo-shaded"),
         "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % "provided",
+
+        "org.scalatest" %% "scalatest" % scalaTestV % "test",
       )
     }
   )
