@@ -1,4 +1,4 @@
-ThisBuild / version := "1.0.0-SNAPSHOT"
+ThisBuild / version := "1.0.0"
 
 ThisBuild / scalaVersion := "2.13.10"
 
@@ -29,6 +29,11 @@ lazy val publishSettings = Seq(
   //We don't put scm information here, it will be added by release plugin and if scm provided here is different than the one from scm
   //we'll end up with two scm sections and invalid pom...
   pomExtra in Global := {
+    <scm>
+      <connection>scm:git:github.com/TouK/flink-scala-2.13.git</connection>
+      <developerConnection>scm:git:git@github.com:TouK/flink-scala-2.13.git</developerConnection>
+      <url>github.com/TouK/flink-scala-2.13</url>
+    </scm>
     <developers>
       <developer>
         <id>TouK</id>
@@ -45,6 +50,8 @@ lazy val root = (project in file("."))
     name := "flink-scala-2.13",
     organization := "pl.touk",
     assembly / assemblyJarName := "flink-scala-2.13",
+    licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    homepage := Some(url("https://github.com/TouK/flink-scala-2.13")),
     libraryDependencies ++= {
       Seq(
         "org.apache.flink" % "flink-streaming-java" % flinkV % "provided",
