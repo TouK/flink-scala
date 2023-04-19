@@ -2,7 +2,7 @@
 
 For now Flink does not support scala 2.13. For more refer to https://issues.apache.org/jira/browse/FLINK-13414
 
-Our solution to deploy scala 2.13 code to Flink, until it's officially supported:
+Our solution to deploy scala 2.13 code to Flink, until it's officially supported (or Flink becomes really scala-free):
 
 ```bash
 rm $FLINK_HOME/lib/flink-scala*.jar
