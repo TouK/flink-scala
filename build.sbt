@@ -1,6 +1,6 @@
-ThisBuild / version := "1.0.0"
+version := "1.1.0"
 
-ThisBuild / scalaVersion := "2.13.10"
+scalaVersion := "2.13.10"
 
 name := "flink-scala-2.13"
 
@@ -49,11 +49,13 @@ lazy val root = (project in file("."))
   .settings(
     name := "flink-scala-2.13",
     organization := "pl.touk",
-    assembly / assemblyJarName := "flink-scala-2.13",
     licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     homepage := Some(url("https://github.com/TouK/flink-scala-2.13")),
     libraryDependencies ++= {
       Seq(
+        "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+
         "org.apache.flink" % "flink-streaming-java" % flinkV % "provided",
         "com.twitter" %% "chill" % "0.9.5" exclude("com.esotericsoftware", "kryo-shaded"),
         "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % "provided",
@@ -63,4 +65,3 @@ lazy val root = (project in file("."))
     }
   )
   .settings(publishSettings)
-
