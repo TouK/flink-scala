@@ -9,6 +9,10 @@ rm $FLINK_HOME/lib/flink-scala*.jar
 wget https://repo1.maven.org/maven2/pl/touk/flink-scala-2-13_2.13/1.1.0/flink-scala-2-13_2.13-1.1.0-assembly.jar -O $FLINK_HOME/lib/flink-scala-2-13_2.13-1.1.0-assembly.jar
 ```
 
+```scala
+libraryDependencies += "pl.touk" %% "flink-scala-2-13" % "1.1.0"
+```
+
 ## Publishing
 ```
 sbt publishSigned sonatypeBundleRelease
