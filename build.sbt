@@ -1,11 +1,11 @@
-version := "1.1.0"
+version := "1.1.1"
 
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.12"
 
 name := "flink-scala-2.13"
 
-lazy val flinkV = "1.16.1"
-lazy val scalaTestV = "3.2.15"
+lazy val flinkV = "1.16.2"
+lazy val scalaTestV = "3.2.17"
 
 
 assembly / artifact := {
