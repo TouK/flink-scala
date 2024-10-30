@@ -1,6 +1,6 @@
-version := "1.1.1"
+version := "1.1.2"
 
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.15"
 
 name := "flink-scala-2.13"
 
