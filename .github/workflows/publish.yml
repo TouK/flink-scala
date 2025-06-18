@@ -18,4 +18,4 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push images
-        run: ./build-images.sh --push #provoked change
+        run: ./build-images.sh --push
