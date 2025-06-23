@@ -29,11 +29,10 @@ lazy val assemblySettings = Seq(
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishTo := {
-    val defaultNexusUrl = "https://oss.sonatype.org/"
     if (isSnapshot.value)
-      Some("snapshots" at defaultNexusUrl + "content/repositories/snapshots")
+      Some("snapshots" at "https://central.sonatype.com/repository/maven-snapshots/")
     else {
-      sonatypePublishToBundle.value
+      sonatypePublishToBundle.value //todo: full release not tested yet
     }
   },
   Test / publishArtifact := false,
