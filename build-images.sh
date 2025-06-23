@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
-sbt -Dsbt.supershell=false "show version"
-sbt -Dsbt.supershell=false "show version" | grep "info" | tail -1
-sbt -Dsbt.supershell=false "show version" | grep "info" | tail -1 | awk '{print $2}'
+
 VERSION=$(sbt --no-colors -Dsbt.supershell=false "show version" | grep "info" | tail -1 | awk '{print $2}')
 FLINK_VERSION=$(sbt --no-colors -Dsbt.supershell=false "show flinkV" | grep "info" | tail -1 | awk '{print $2}')
 echo "FLINK_SCALA_VERSION: ${VERSION}"
@@ -14,7 +12,7 @@ else
   OUTPUT_TYPE="docker"
 fi
 
-sbt "++clean;++assembly"
+sbt "+clean; +assembly"
 
 IMAGE_TAG="${VERSION}-flink${FLINK_VERSION}-scala_2.12"
 echo "Building Docker image with version: $IMAGE_TAG"
