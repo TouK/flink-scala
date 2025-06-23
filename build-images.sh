@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-
+sbt -Dsbt.supershell=false "show version"
 VERSION=$(sbt -Dsbt.supershell=false "show version" | grep -E "^\[info\] " | tail -1 | awk '{print $2}')
 FLINK_VERSION=$(sbt -Dsbt.supershell=false "show flinkV" | grep -E "^\[info\] " | tail -1 | awk '{print $2}')
 echo "FLINK_SCALA_VERSION: ${VERSION}"
