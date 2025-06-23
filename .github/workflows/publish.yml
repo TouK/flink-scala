@@ -1,6 +1,6 @@
 name: Publish
 on:
-#  workflow_dispatch:  # todo: requires to be merged to default branch to work
+#  workflow_dispatch: # todo: requires to be merged to default branch to work
   push:
     branches:
       - jdk17-scala2.12.15
