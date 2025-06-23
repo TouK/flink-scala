@@ -28,6 +28,7 @@ lazy val assemblySettings = Seq(
 
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
+  sonatypeCredentialHost := "central.sonatype.com",
   publishTo := {
     if (isSnapshot.value)
       Some("snapshots" at "https://central.sonatype.com/repository/maven-snapshots/")
