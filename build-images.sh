@@ -3,6 +3,8 @@ set -e
 
 VERSION=$(sbt -Dsbt.supershell=false "show version" | grep -E "^\[info\] " | tail -1 | awk '{print $2}')
 FLINK_VERSION=$(sbt -Dsbt.supershell=false "show flinkV" | grep -E "^\[info\] " | tail -1 | awk '{print $2}')
+echo "FLINK_SCALA_VERSION: ${VERSION}"
+echo "FLINK_VERSION: ${FLINK_VERSION}"
 
 if [[ "$1" == "--push" ]]; then
   OUTPUT_TYPE="registry"
