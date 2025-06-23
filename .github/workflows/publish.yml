@@ -8,8 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SONATYPE_USERNAME: ${{ secrets.sonatype_user }}
-      SONATYPE_PASSWORD: ${{ secrets.sonatype_password }}
+      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v4
