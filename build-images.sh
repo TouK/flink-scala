@@ -3,8 +3,8 @@ set -e
 sbt -Dsbt.supershell=false "show version"
 sbt -Dsbt.supershell=false "show version" | grep "info" | tail -1
 sbt -Dsbt.supershell=false "show version" | grep "info" | tail -1 | awk '{print $2}'
-VERSION=$(sbt -Dsbt.supershell=false "show version" | grep "info" | tail -1 | awk '{print $2}')
-FLINK_VERSION=$(sbt -Dsbt.supershell=false "show flinkV" | grep "info" | tail -1 | awk '{print $2}')
+VERSION=$(sbt --no-colors -Dsbt.supershell=false "show version" | grep "info" | tail -1 | awk '{print $2}')
+FLINK_VERSION=$(sbt --no-colors -Dsbt.supershell=false "show flinkV" | grep "info" | tail -1 | awk '{print $2}')
 echo "FLINK_SCALA_VERSION: ${VERSION}"
 echo "FLINK_VERSION: ${FLINK_VERSION}"
 
