@@ -18,6 +18,8 @@ jobs:
           java-version: 11
           cache: sbt
       - uses: sbt/setup-sbt@v1
+      - name: Additional log
+        run: sbt -V
       - name: Build and publish maven artifacts
         run: sbt "+clean; +publish"
       - name: Setup buildx builder
