@@ -3,8 +3,8 @@ import sbtassembly.MergeStrategy
 name := "flink-scala"
 version := "1.1.3-SNAPSHOT"
 
-val scala212 = "2.12.15"
-val scala213 = "2.13.15"
+val scala212 = "2.12.20"
+val scala213 = "2.13.16"
 
 scalaVersion := scala212
 crossScalaVersions := List(scala212, scala213)
