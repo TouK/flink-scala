@@ -12,7 +12,7 @@ crossScalaVersions := List(scala212, scala213)
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
 flinkV := "1.20.1"
 
-lazy val scalaTestV = "3.2.17"
+lazy val scalaTestV = "3.2.19"
 
 lazy val assemblySettings = Seq(
   assembly / artifact := {
