@@ -41,9 +41,9 @@ lazy val publishSettings = Seq(
   //we'll end up with two scm sections and invalid pom...
   pomExtra in Global := {
     <scm>
-      <connection>scm:git:github.com/TouK/flink-scala-2.13.git</connection>
-      <developerConnection>scm:git:git@github.com:TouK/flink-scala-2.13.git</developerConnection>
-      <url>github.com/TouK/flink-scala-2.13</url>
+      <connection>scm:git:github.com/TouK/flink-scala.git</connection>
+      <developerConnection>scm:git:git@github.com:TouK/flink-scala.git</developerConnection>
+      <url>github.com/TouK/flink-scala</url>
     </scm>
       <developers>
         <developer>
@@ -61,7 +61,7 @@ lazy val root = (project in file("."))
     name := "flink-scala",
     organization := "pl.touk",
     licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-    homepage := Some(url("https://github.com/TouK/flink-scala-2.13")),
+    homepage := Some(url("https://github.com/TouK/flink-scala")),
     libraryDependencies ++= (forScalaVersion(scalaVersion.value) {
       case (2, 12) =>
         Seq(
