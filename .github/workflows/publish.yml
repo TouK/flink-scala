@@ -18,8 +18,14 @@ jobs:
           java-version: 11
           cache: sbt
       - uses: sbt/setup-sbt@v1
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PRIVATE_KEY_PASSWORD }}
       - name: Build and publish maven artifacts
-        run: sbt "+clean; +publish"
+        run: sbt "+clean; +publishSigned"
       - name: Setup buildx builder
         uses: docker/setup-buildx-action@v3
         with:
