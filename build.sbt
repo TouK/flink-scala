@@ -1,7 +1,7 @@
 import sbtassembly.MergeStrategy
 
 name := "flink-scala"
-version := "1.1.3"
+version := "1.1.4-SNAPSHOT"
 
 val scala212 = "2.12.20"
 val scala213 = "2.13.16"
@@ -33,7 +33,7 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at "https://central.sonatype.com/repository/maven-snapshots/")
     else {
-      sonatypePublishToBundle.value //todo: full release not tested yet
+      sonatypePublishToBundle.value
     }
   },
   Test / publishArtifact := false,

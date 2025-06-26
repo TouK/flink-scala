@@ -21,7 +21,13 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PRIVATE_KEY_PASSWORD }}
-      - name: Build and publish maven artifacts
+      - name: Check if snapshot version
+        run:  echo "IS_SNAPSHOT=$(sbt --no-colors -Dsbt.supershell=false 'show isSnapshot' | grep 'info' | tail -1 | awk '{print $2}')" >> $GITHUB_ENV
+      - name: Build and publish release version to maven
+        if: ${{ env.IS_SNAPSHOT == 'true' }}
+        run: sbt "+clean; +publishSigned; sonatypeBundleRelease"
+      - name: Build and publish snapshot version to maven
+        if: ${{ env.IS_SNAPSHOT == 'false' }}
         run: sbt "+clean; +publishSigned"
       - name: Setup buildx builder
         uses: docker/setup-buildx-action@v3

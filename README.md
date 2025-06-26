@@ -9,18 +9,18 @@ For more refer to <https://issues.apache.org/jira/browse/FLINK-13414>.
 ```bash
 rm $FLINK_HOME/lib/flink-scala*.jar
 
-wget https://central.sonatype.com/repository/maven-snapshots/pl/touk/flink-scala_2.13/1.1.3-SNAPSHOT/flink-scala_2.13-1.1.3-SNAPSHOT-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.13-1.1.3-SNAPSHOT-assembly.jar
+wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.12/1.1.3/flink-scala_2.12-1.1.3-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.12-1.1.3-assembly.jar
 ```
 
 ## Using as a lib (probably only sufficient when child-first classloading is enabled on flink)
 ```scala
-libraryDependencies += "pl.touk" %% "flink-scala" % "1.1.3-SNAPSHOT"
+libraryDependencies += "pl.touk" %% "flink-scala" % "1.1.3"
 ```
 
 ## Prebuild flink images
 * we provide prebuild flink docker images for scala 2.12 and 2.13 on [Docker Hub](https://hub.docker.com/r/touk/flink)
 
-## Publishing
+## Publishing (actually on manual github action)
 ```
-sbt publishSigned sonatypeBundleRelease
+sbt "+publishSigned; sonatypeBundleRelease"
 ```
