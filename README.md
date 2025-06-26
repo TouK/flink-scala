@@ -1,5 +1,8 @@
 # flink-scala
 
+[![Maven Central Version](https://img.shields.io/maven-central/v/pl.touk/flink-scala_2.13)](https://central.sonatype.com/artifact/pl.touk/flink-scala_2.13/versions)
+[![Docker Image Version](https://img.shields.io/docker/v/touk/flink?sort=date&label=Docker%20Hub)](https://hub.docker.com/r/touk/flink/tags)
+
 This module is a replacement for the `org.apache.flink:flink-scala` lib shipped with flink distribution,
 and allows using flink with higher scala versions than 2.12.8.
 
