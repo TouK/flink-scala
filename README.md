@@ -12,18 +12,18 @@ For more refer to <https://issues.apache.org/jira/browse/FLINK-13414>.
 ```bash
 rm $FLINK_HOME/lib/flink-scala*.jar
 
-wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.12/1.1.3/flink-scala_2.12-1.1.3-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.12-1.1.3-assembly.jar
+wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.12/1.1.4/flink-scala_2.12-1.1.4-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.12-1.1.4-assembly.jar
 ```
 
 ## Using as a lib (probably only sufficient when child-first classloading is enabled on flink)
 ```scala
-libraryDependencies += "pl.touk" %% "flink-scala" % "1.1.3"
+libraryDependencies += "pl.touk" %% "flink-scala" % "1.1.4"
 ```
 
 ## Prebuild flink images
 * we provide prebuild flink docker images for scala 2.12 and 2.13 on [Docker Hub](https://hub.docker.com/r/touk/flink)
 
-## Publishing (actually on manual github action)
+## Publishing (run on manual GitHub action)
 ```
 sbt "+publishSigned; sonatypeBundleRelease"
 ```
