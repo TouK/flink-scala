@@ -18,6 +18,7 @@
 package org.apache.flink.runtime.types
 
 import com.twitter.chill._
+import com.twitter.chill.java.{UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}
 import org.apache.flink.api.java.typeutils.runtime.kryo.FlinkChillPackageRegistrar
 
 import _root_.java.io.Serializable
@@ -76,10 +77,20 @@ object FlinkScalaKryoInstantiator extends Serializable {
 class FlinkScalaKryoInstantiator extends EmptyFlinkScalaKryoInstantiator {
   override def newKryo = {
     val k = super.newKryo
-    val reg = new AllScalaRegistrar
-    reg(k)
+    new AllScalaRegistrar().apply(k)
+    registerUnmodifiableJavaCollectionsSerializers(k)
     k
   }
+
+  private def registerUnmodifiableJavaCollectionsSerializers(k: KryoBase): Unit = {
+    UnmodifiableCollectionSerializer.registrar.apply(k)
+    UnmodifiableListSerializer.registrar.apply(k)
+    UnmodifiableMapSerializer.registrar.apply(k)
+    UnmodifiableSetSerializer.registrar.apply(k)
+    UnmodifiableSortedMapSerializer.registrar.apply(k)
+    UnmodifiableSortedSetSerializer.registrar.apply(k)
+  }
+
 }
 
 class ScalaCollectionsRegistrar extends IKryoRegistrar {
