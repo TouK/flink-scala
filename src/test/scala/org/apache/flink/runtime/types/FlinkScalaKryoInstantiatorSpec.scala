@@ -4,23 +4,37 @@ import com.esotericsoftware.kryo.io.{Input, Output}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import java.util.Collections
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class FlinkScalaKryoInstantiatorSpec extends AnyFlatSpec with Matchers {
 
-  it should "serialize and deserialize records properly" in {
-    val kryo = new FlinkScalaKryoInstantiator().newKryo
+  private val kryo = new FlinkScalaKryoInstantiator().newKryo
 
+  it should "serialize and deserialize records properly" in {
     val record = Record(true, 5, "abc",
       Map("a" -> 1, "b" -> 2), List("123", "abc"), Set("abc"),
       mutable.Map("a" -> 123).asJava, mutable.Buffer("abc").asJava, mutable.Set("abc").asJava)
+    checkSerializeDeserializeRoundTrip(record)
+  }
+  it should "serialize and deserialize unmodifiableList" in {
+    val obj = Collections.unmodifiableList(List("foo", "bar").asJava)
+    checkSerializeDeserializeRoundTrip(obj)
+  }
+
+  it should "serialize and deserialize unmodifiableMap" in {
+    val obj = Collections.unmodifiableMap(Map("foo" -> 1, "bar" -> 2).asJava)
+    checkSerializeDeserializeRoundTrip(obj)
+  }
+
+  private def checkSerializeDeserializeRoundTrip(obj: Any) = {
     val output = new Output(1024)
-    kryo.writeClassAndObject(output, record)
+    kryo.writeClassAndObject(output, obj)
     val input = new Input(output.toBytes)
     val result = kryo.readClassAndObject(input)
 
-    result shouldBe record
+    result shouldBe obj
   }
 }
 
