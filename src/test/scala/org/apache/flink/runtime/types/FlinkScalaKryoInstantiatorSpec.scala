@@ -9,12 +9,17 @@ import scala.jdk.CollectionConverters._
 
 class FlinkScalaKryoInstantiatorSpec extends AnyFlatSpec with Matchers {
 
-  it should "serialize and deserialize records properly" in {
-    val kryo = new FlinkScalaKryoInstantiator().newKryo
+  private val kryo = new FlinkScalaKryoInstantiator().newKryo
 
+  it should "serialize and deserialize records properly" in {
     val record = Record(true, 5, "abc",
       Map("a" -> 1, "b" -> 2), List("123", "abc"), Set("abc"),
       mutable.Map("a" -> 123).asJava, mutable.Buffer("abc").asJava, mutable.Set("abc").asJava)
+    checkSerializeDeserializeRoundTrip(record)
+  }
+
+
+  private def checkSerializeDeserializeRoundTrip(record: Record) = {
     val output = new Output(1024)
     kryo.writeClassAndObject(output, record)
     val input = new Input(output.toBytes)

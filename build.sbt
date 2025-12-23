@@ -1,13 +1,12 @@
 import sbtassembly.MergeStrategy
 
 name := "flink-scala"
-version := "1.1.4"
+version := "1.1.5"
 
-val scala212 = "2.12.20"
 val scala213 = "2.13.16"
 
-scalaVersion := scala212
-crossScalaVersions := List(scala212, scala213)
+scalaVersion := scala213
+crossScalaVersions := List(scala213)
 
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
 flinkV := "1.20.2"
