@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flink.runtime.types
+package org.apache.flink.table.api.runtime.types
 
 import com.twitter.chill._
 import com.twitter.chill.java.{UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}
@@ -97,7 +97,7 @@ class ScalaCollectionsRegistrar extends IKryoRegistrar {
     // for binary compat this is here, but could be moved to RichKryo
     def useField[T](cls: Class[T]): Unit = {
       val fs = new com.esotericsoftware.kryo.serializers.FieldSerializer(newK, cls)
-      fs.setIgnoreSyntheticFields(false) // scala generates a lot of these attributes
+      fs.getFieldSerializerConfig.setIgnoreSyntheticFields(false) // scala generates a lot of these attributes
       newK.register(cls, fs)
     }
     // The wrappers are private classes:
@@ -196,8 +196,8 @@ class AllScalaRegistrar extends IKryoRegistrar {
     k.forClass[Symbol](new KSerializer[Symbol] {
       override def isImmutable = true
       def write(k: Kryo, out: Output, obj: Symbol): Unit = { out.writeString(obj.name) }
-      def read(k: Kryo, in: Input, cls: Class[Symbol]) = Symbol(in.readString)
-    }).forSubclass[Regex](new RegexSerializer)
+        override def read(k: Kryo, in: Input, cls: Class[_ <: Symbol]): Symbol = Symbol(in.readString)
+      }).forSubclass[Regex](new RegexSerializer)
       .forClass[ClassTag[Any]](new ClassTagSerializer[Any])
       .forSubclass[Manifest[Any]](new ManifestSerializer[Any])
       .forSubclass[scala.Enumeration#Value](new EnumerationSerializer)

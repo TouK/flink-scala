@@ -10,6 +10,7 @@ crossScalaVersions := List(scala213)
 
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
 flinkV := "2.2.0"
+val kryoV = "5.6.2"
 
 lazy val scalaTestV = "3.2.19"
 
@@ -63,8 +64,8 @@ lazy val root = (project in file("."))
     homepage := Some(url("https://github.com/TouK/flink-scala")),
     libraryDependencies ++= Seq(
       "org.apache.flink" % "flink-streaming-java" % flinkV.value % "provided",
-      "com.twitter" %% "chill" % "0.9.5" exclude("com.esotericsoftware", "kryo-shaded"),
-      "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % "provided",
+      "com.twitter" %% "chill" % "0.10.0" exclude("com.esotericsoftware", "kryo-shaded"),
+      "com.esotericsoftware" % "kryo" % kryoV % "provided",
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,

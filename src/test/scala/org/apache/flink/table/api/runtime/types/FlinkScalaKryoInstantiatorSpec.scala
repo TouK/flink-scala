@@ -1,4 +1,4 @@
-package org.apache.flink.runtime.types
+package org.apache.flink.table.api.runtime.types
 
 import com.esotericsoftware.kryo.io.{Input, Output}
 import org.scalatest.flatspec.AnyFlatSpec
