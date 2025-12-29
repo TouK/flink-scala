@@ -19,9 +19,8 @@ package org.apache.flink.runtime.types
 
 import com.twitter.chill._
 import com.twitter.chill.java.{UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}
-import org.apache.flink.api.java.typeutils.runtime.kryo.FlinkChillPackageRegistrar
+import org.apache.flink.streaming.util.serialize.FlinkChillPackageRegistrar
 
-import _root_.java.io.Serializable
 import scala.collection.immutable.{ArraySeq, BitSet, HashMap, HashSet, ListMap, ListSet, NumericRange, Queue, Range, SortedMap, SortedSet}
 import scala.collection.mutable.{Buffer, ListBuffer, ArraySeq => MArraySeq, BitSet => MBitSet, HashMap => MHashMap, HashSet => MHashSet, Map => MMap, Queue => MQueue, Set => MSet}
 import scala.jdk.CollectionConverters._

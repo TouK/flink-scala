@@ -1,7 +1,7 @@
 import sbtassembly.MergeStrategy
 
 name := "flink-scala"
-version := "1.1.5"
+version := "1.1.6"
 
 val scala213 = "2.13.16"
 
@@ -9,7 +9,7 @@ scalaVersion := scala213
 crossScalaVersions := List(scala213)
 
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
-flinkV := "1.20.2"
+flinkV := "2.2.0"
 
 lazy val scalaTestV = "3.2.19"
 
@@ -61,42 +61,15 @@ lazy val root = (project in file("."))
     organization := "pl.touk",
     licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     homepage := Some(url("https://github.com/TouK/flink-scala")),
-    libraryDependencies ++= (forScalaVersion(scalaVersion.value) {
-      case (2, 12) =>
-        Seq(
-          "org.apache.flink" %% "flink-scala" % flinkV.value excludeAll(
-            ExclusionRule(organization = "org.apache.flink", name = "flink-core"),
-            ExclusionRule(organization = "org.apache.flink", name = "flink-java"),
-            ExclusionRule(organization = "org.apache.flink", name = "flink-shaded-asm-9"),
-            ExclusionRule(organization = "org.slf4j", name = "slf4j-api"),
-            ExclusionRule(organization = "com.google.code.findbugs", name = "jsr305"),
-          ),
-          "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % Test,
-          "org.apache.flink" % "flink-java" % flinkV.value % Test,
-        )
-      case (2, 13) =>
-        Seq(
-          "org.apache.flink" % "flink-streaming-java" % flinkV.value % "provided",
-          "com.twitter" %% "chill" % "0.9.5" exclude("com.esotericsoftware", "kryo-shaded"),
-          "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % "provided",
-        )
-    } ++ Seq(
+    libraryDependencies ++= Seq(
+      "org.apache.flink" % "flink-streaming-java" % flinkV.value % "provided",
+      "com.twitter" %% "chill" % "0.9.5" exclude("com.esotericsoftware", "kryo-shaded"),
+      "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % "provided",
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.scalatest" %% "scalatest" % scalaTestV % Test,
-    ))
+    )
   )
   .settings(assemblySettings *)
   .settings(publishSettings)
-
-def forScalaVersion[T](version: String)(provide: PartialFunction[(Int, Int), T]): T = {
-  CrossVersion.partialVersion(version) match {
-    case Some((major, minor)) if provide.isDefinedAt((major.toInt, minor.toInt)) =>
-      provide((major.toInt, minor.toInt))
-    case Some(_) =>
-      throw new IllegalArgumentException(s"Scala version $version is not handled")
-    case None =>
-      throw new IllegalArgumentException(s"Invalid Scala version $version")
-  }
-}
