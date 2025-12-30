@@ -64,13 +64,16 @@ lazy val root = (project in file("."))
     homepage := Some(url("https://github.com/TouK/flink-scala")),
     libraryDependencies ++= Seq(
       "org.apache.flink" % "flink-streaming-java" % flinkV.value % "provided",
-      "com.twitter" %% "chill" % "0.10.0" exclude("com.esotericsoftware", "kryo-shaded"),
+      "com.xebialabs.chill" %% "chill" % "0.11.1",
       "com.esotericsoftware" % "kryo" % kryoV % "provided",
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "org.scalatest" %% "scalatest" % scalaTestV % Test,
-    )
+    ),
+    resolvers ++= Seq(
+      "xebialabs" at "https://nexus.xebialabs.com/nexus/content/repositories/releases",
+    ),
   )
   .settings(assemblySettings *)
   .settings(publishSettings)

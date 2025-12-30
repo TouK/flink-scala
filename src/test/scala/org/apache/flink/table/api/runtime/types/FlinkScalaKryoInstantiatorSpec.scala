@@ -1,6 +1,6 @@
 package org.apache.flink.table.api.runtime.types
 
-import com.esotericsoftware.kryo.io.{Input, Output}
+import com.esotericsoftware.kryo.kryo5.io.{Input, Output}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

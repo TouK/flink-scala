@@ -17,14 +17,25 @@
  */
 package org.apache.flink.table.api.runtime.types
 
+import com.esotericsoftware.kryo.kryo5.objenesis.strategy.StdInstantiatorStrategy
+import com.esotericsoftware.kryo.kryo5.serializers.{DefaultSerializers, FieldSerializer, JavaSerializer}
 import com.twitter.chill._
-import com.twitter.chill.java.{UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}
-import org.apache.flink.streaming.util.serialize.FlinkChillPackageRegistrar
+import java.{InetSocketAddressSerializer, UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}
 
 import scala.collection.immutable.{ArraySeq, BitSet, HashMap, HashSet, ListMap, ListSet, NumericRange, Queue, Range, SortedMap, SortedSet}
 import scala.collection.mutable.{Buffer, ListBuffer, ArraySeq => MArraySeq, BitSet => MBitSet, HashMap => MHashMap, HashSet => MHashSet, Map => MMap, Queue => MQueue, Set => MSet}
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
+import _root_.java.net.InetSocketAddress
+import _root_.java.net.URI
+import _root_.java.sql.Date
+import _root_.java.sql.Time
+import _root_.java.sql.Timestamp
+import _root_.java.text.SimpleDateFormat
+import _root_.java.util.Locale
+import _root_.java.util.PriorityQueue
+import _root_.java.util.UUID
+import _root_.java.util.regex.Pattern
 import scala.util.matching.Regex
 
 /*
@@ -39,10 +50,10 @@ checks in our code base.
  * registered serializers, just the standard Kryo configured for Kryo.
  */
 class EmptyFlinkScalaKryoInstantiator extends KryoInstantiator {
-  override def newKryo = {
+  override def newKryo: KryoBase = {
     val k = new KryoBase
     k.setRegistrationRequired(false)
-    k.setInstantiatorStrategy(new org.objenesis.strategy.StdInstantiatorStrategy)
+    k.setInstantiatorStrategy(new StdInstantiatorStrategy)
 
     // Handle cases where we may have an odd classloader setup like with libjars
     // for hadoop
@@ -74,7 +85,8 @@ object FlinkScalaKryoInstantiator extends Serializable {
 
 /** Makes an empty instantiator then registers everything */
 class FlinkScalaKryoInstantiator extends EmptyFlinkScalaKryoInstantiator {
-  override def newKryo = {
+  // FIXME: Here is a problem - xebialabs chill's KryoBase extends com.esotericsoftware.kryo.kryo5.Kryo and Flink's KryoSerializer requires com.esotericsoftware.kryo.Kryo
+  override def newKryo: KryoBase = {
     val k = super.newKryo
     new AllScalaRegistrar().apply(k)
     registerUnmodifiableJavaCollectionsSerializers(k)
@@ -96,7 +108,7 @@ class ScalaCollectionsRegistrar extends IKryoRegistrar {
   def apply(newK: Kryo): Unit = {
     // for binary compat this is here, but could be moved to RichKryo
     def useField[T](cls: Class[T]): Unit = {
-      val fs = new com.esotericsoftware.kryo.serializers.FieldSerializer(newK, cls)
+      val fs = new FieldSerializer(newK, cls)
       fs.getFieldSerializerConfig.setIgnoreSyntheticFields(false) // scala generates a lot of these attributes
       newK.register(cls, fs)
     }
@@ -194,18 +206,39 @@ class AllScalaRegistrar extends IKryoRegistrar {
     // Register all 22 tuple serializers and specialized serializers
     ScalaTupleSerialization.register(k)
     k.forClass[Symbol](new KSerializer[Symbol] {
-      override def isImmutable = true
-      def write(k: Kryo, out: Output, obj: Symbol): Unit = { out.writeString(obj.name) }
+        override def isImmutable = true
+
+        def write(k: Kryo, out: Output, obj: Symbol): Unit = {
+          out.writeString(obj.name)
+        }
+
         override def read(k: Kryo, in: Input, cls: Class[_ <: Symbol]): Symbol = Symbol(in.readString)
       }).forSubclass[Regex](new RegexSerializer)
       .forClass[ClassTag[Any]](new ClassTagSerializer[Any])
       .forSubclass[Manifest[Any]](new ManifestSerializer[Any])
-      .forSubclass[scala.Enumeration#Value](new EnumerationSerializer)
+      .forSubclass[Enumeration#Value](new EnumerationSerializer)
 
     // use the singleton serializer for boxed Unit
     val boxedUnit = scala.runtime.BoxedUnit.UNIT
     k.register(boxedUnit.getClass, new SingletonSerializer(boxedUnit))
-    new FlinkChillPackageRegistrar().registerSerializers(k)
+
+    registerFlinkDefaultChillSerializers(k)
+  }
+
+  // See FlinkChillPackageRegistrar
+  private def registerFlinkDefaultChillSerializers(k: Kryo): Unit = {
+    k.register(_root_.java.util.Arrays.asList("").getClass, new DefaultSerializers.ArraysAsListSerializer())
+    k.register(classOf[BitSet], new DefaultSerializers.BitSetSerializer())
+    k.register(classOf[PriorityQueue[_]], new DefaultSerializers.PriorityQueueSerializer())
+    k.register(classOf[Pattern], new DefaultSerializers.PatternSerializer())
+    k.register(classOf[Date], new DefaultSerializers.DateSerializer())
+    k.register(classOf[Time], new DefaultSerializers.DateSerializer())
+    k.register(classOf[Timestamp], new DefaultSerializers.TimestampSerializer())
+    k.register(classOf[URI], new DefaultSerializers.URISerializer())
+    k.register(classOf[InetSocketAddress], new InetSocketAddressSerializer())
+    k.register(classOf[UUID], new DefaultSerializers.UUIDSerializer())
+    k.register(classOf[Locale], new DefaultSerializers.LocaleSerializer())
+    k.register(classOf[SimpleDateFormat], new JavaSerializer())
   }
 }
 
@@ -213,8 +246,9 @@ class AllScalaRegistrar extends IKryoRegistrar {
  * Scala collections registrar for compatibility between 2.12- and 2.13+.
  *
  * For 2.12- there's no extra classes that need to be registered.
+ *
  * @see [[ScalaCollectionsRegistrar]] and [[AllScalaRegistrar]] for all the
- * provided registrations.
+ *      provided registrations.
  */
 class ScalaCollectionsRegistrarCompat extends IKryoRegistrar {
   override def apply(newK: Kryo): Unit = {
