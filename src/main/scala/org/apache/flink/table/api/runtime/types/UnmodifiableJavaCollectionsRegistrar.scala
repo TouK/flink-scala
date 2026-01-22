@@ -1,4 +1,4 @@
-package org.apache.flink.runtime.types
+package org.apache.flink.table.api.runtime.types
 
 import com.esotericsoftware.kryo.Kryo
 import com.twitter.chill.java.{IterableRegistrar, UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}

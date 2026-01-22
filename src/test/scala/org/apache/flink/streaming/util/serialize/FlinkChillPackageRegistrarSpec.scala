@@ -1,6 +1,6 @@
-package org.apache.flink.api.java.typeutils.runtime.kryo
+package org.apache.flink.streaming.util.serialize
 
-import org.apache.flink.runtime.types.FlinkScalaKryoInstantiator
+import org.apache.flink.table.api.runtime.types.FlinkScalaKryoInstantiator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
