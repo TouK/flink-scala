@@ -39,13 +39,15 @@ lazy val publishSettings = Seq(
       "scm:git@github.com:TouK/flink-scala.git"
     )
   ),
-  developers := List(
-    Developer(
-      id = "TouK",
-      name = "TouK",
-      email = "",
-      url = url("https://touk.pl")
-    )
+  pomExtra := List(
+    <developers>
+      <developer>
+        <name>Nussknacker Team</name>
+        <email>info@nussknacker.io</email>
+        <organization>Nussknacker</organization>
+        <organizationUrl>https://nussknacker.io</organizationUrl>
+      </developer>
+    </developers>
   ),
 )
 
@@ -53,9 +55,9 @@ lazy val root = (project in file("."))
   .settings(
     name := "flink-scala",
     organization := "pl.touk",
-    organizationName := "TouK",
-    organizationHomepage := Some(url("https://touk.pl/")),
-    licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    organizationName := "Nussknacker",
+    organizationHomepage := Some(url("https://nussknacker.io")),
+    licenses := List(License.Apache2),
     homepage := Some(url("https://github.com/TouK/flink-scala")),
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-library" % scalaVersion.value,
