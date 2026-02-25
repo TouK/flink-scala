@@ -13,13 +13,13 @@ For more refer to <https://issues.apache.org/jira/browse/FLINK-13414>.
 ```bash
 rm $FLINK_HOME/lib/flink-scala*.jar
 
-wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.13/1.1.6/flink-scala_2.13-1.1.6-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.13-1.1.6-assembly.jar
+wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.13/1.2.0/flink-scala_2.13-1.2.0-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.13-1.2.0-assembly.jar
 ```
 
 ## Using as a lib (probably only sufficient when child-first classloading is enabled on flink)
 
 ```scala
-libraryDependencies += "pl.touk" %% "flink-scala" % "1.1.6"
+libraryDependencies += "pl.touk" %% "flink-scala" % "1.2.0"
 ```
 
 ## Pre-built Flink images
@@ -28,9 +28,9 @@ We provide pre-built Docker images for Flink with Scala 2.13 on [Docker Hub](htt
 
 ## Publishing
 
-1. Change version in _build.sbt_, commit changes
+1. Change version in _version.sbt_, commit changes
 2. Add version tag (`git tag v...`)
 3. Push changes to GitHub 
 4. Manually run the [_Publish_ workflow in GitHub Actions](https://github.com/TouK/flink-scala/actions/workflows/publish.yml)
-5. Change version to a `-SNAPSHOT` version in build.sbt
+5. Change version to a `-SNAPSHOT` version in version.sbt
 6. Commit and push changes
