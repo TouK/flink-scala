@@ -1,7 +1,6 @@
 import sbtassembly.MergeStrategy
 
 name := "flink-scala"
-version := "1.1.6"
 
 val scala213 = "2.13.18"
 
