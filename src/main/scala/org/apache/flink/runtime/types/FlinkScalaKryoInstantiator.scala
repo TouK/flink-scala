@@ -18,12 +18,11 @@
 package org.apache.flink.runtime.types
 
 import com.twitter.chill._
-import com.twitter.chill.java.{UnmodifiableCollectionSerializer, UnmodifiableListSerializer, UnmodifiableMapSerializer, UnmodifiableSetSerializer, UnmodifiableSortedMapSerializer, UnmodifiableSortedSetSerializer}
 import org.apache.flink.api.java.typeutils.runtime.kryo.FlinkChillPackageRegistrar
 
-import _root_.java.io.Serializable
 import scala.collection.immutable.{ArraySeq, BitSet, HashMap, HashSet, ListMap, ListSet, NumericRange, Queue, Range, SortedMap, SortedSet}
-import scala.collection.mutable.{Buffer, ListBuffer, ArraySeq => MArraySeq, BitSet => MBitSet, HashMap => MHashMap, HashSet => MHashSet, Map => MMap, Queue => MQueue, Set => MSet}
+import scala.collection.mutable
+import scala.collection.mutable.{ListBuffer, ArraySeq => MArraySeq, BitSet => MBitSet, HashMap => MHashMap, HashSet => MHashSet, Map => MMap, Queue => MQueue, Set => MSet}
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
@@ -40,7 +39,7 @@ checks in our code base.
  * registered serializers, just the standard Kryo configured for Kryo.
  */
 class EmptyFlinkScalaKryoInstantiator extends KryoInstantiator {
-  override def newKryo = {
+  override def newKryo: KryoBase = {
     val k = new KryoBase
     k.setRegistrationRequired(false)
     k.setInstantiatorStrategy(new org.objenesis.strategy.StdInstantiatorStrategy)
@@ -75,22 +74,12 @@ object FlinkScalaKryoInstantiator extends Serializable {
 
 /** Makes an empty instantiator then registers everything */
 class FlinkScalaKryoInstantiator extends EmptyFlinkScalaKryoInstantiator {
-  override def newKryo = {
+  override def newKryo: KryoBase = {
     val k = super.newKryo
     new AllScalaRegistrar().apply(k)
-    registerUnmodifiableJavaCollectionsSerializers(k)
+    UnmodifiableJavaCollectionsRegistrar.apply(k)
     k
   }
-
-  private def registerUnmodifiableJavaCollectionsSerializers(k: KryoBase): Unit = {
-    UnmodifiableCollectionSerializer.registrar.apply(k)
-    UnmodifiableListSerializer.registrar.apply(k)
-    UnmodifiableMapSerializer.registrar.apply(k)
-    UnmodifiableSetSerializer.registrar.apply(k)
-    UnmodifiableSortedMapSerializer.registrar.apply(k)
-    UnmodifiableSortedSetSerializer.registrar.apply(k)
-  }
-
 }
 
 class ScalaCollectionsRegistrar extends IKryoRegistrar {
@@ -126,7 +115,7 @@ class ScalaCollectionsRegistrar extends IKryoRegistrar {
       // Add ListBuffer subclass before Buffer to prevent the more general case taking precedence
       .forTraversableSubclass(ListBuffer.empty[Any], isImmutable = false)
       // add mutable Buffer before Vector, otherwise Vector is used
-      .forTraversableSubclass(Buffer.empty[Any], isImmutable = false)
+      .forTraversableSubclass(mutable.Buffer.empty[Any], isImmutable = false)
       // Vector is a final class
       .forTraversableClass(Vector.empty[Any])
       .forTraversableSubclass(ListSet.empty[Any])
@@ -180,23 +169,16 @@ class JavaWrapperScala2_13Registrar extends IKryoRegistrar {
 /** Registers all the scala (and java) serializers we have */
 class AllScalaRegistrar extends IKryoRegistrar {
   def apply(k: Kryo): Unit = {
-    val col = new ScalaCollectionsRegistrar
-    col(k)
-
-    val jcol = new JavaWrapperCollectionRegistrar
-    jcol(k)
-
-    val jmap = new JavaWrapperScala2_13Registrar
-    jmap(k)
-
-    val smap = new ScalaCollectionsRegistrarCompat
-    smap(k)
+    new ScalaCollectionsRegistrar()(k)
+    new JavaWrapperCollectionRegistrar()(k)
+    new JavaWrapperScala2_13Registrar()(k)
+    new ScalaCollectionsRegistrarCompat()(k)
 
     // Register all 22 tuple serializers and specialized serializers
     ScalaTupleSerialization.register(k)
     k.forClass[Symbol](new KSerializer[Symbol] {
       override def isImmutable = true
-      def write(k: Kryo, out: Output, obj: Symbol): Unit = { out.writeString(obj.name) }
+      def write(k: Kryo, out: Output, obj: Symbol): Unit = out.writeString(obj.name)
       def read(k: Kryo, in: Input, cls: Class[Symbol]) = Symbol(in.readString)
     }).forSubclass[Regex](new RegexSerializer)
       .forClass[ClassTag[Any]](new ClassTagSerializer[Any])
