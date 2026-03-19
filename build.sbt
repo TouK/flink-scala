@@ -16,7 +16,7 @@ val scalaTestV = "3.2.19"
 lazy val buildInfoSettings = Seq(
   buildInfoKeys    := Seq[BuildInfoKey](name, version),
   buildInfoKeys ++= Seq[BuildInfoKey](
-    "flinkVersion" -> flinkV,
+    "flinkVersion" -> flinkV.value,
     "kryoVersion"  -> flinkKryoV,
     "chillVersion" -> chillV,
   ),
