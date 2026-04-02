@@ -1,4 +1,4 @@
-package org.apache.flink.runtime.types
+package org.apache.flink.table.api.runtime.types
 
 import com.twitter.chill.{Input, KSerializer, Kryo, Output}
 
@@ -32,7 +32,7 @@ private class JavaWrapperScala2_13Serializer[T](val wrapperClass: Class[_ <: T],
       kryo.writeClassAndObject(out, obj)
     }
 
-  override def read(kryo: Kryo, in: Input, clz: Class[T]): T =
+  override def read(kryo: Kryo, in: Input, clz: Class[_ <: T]): T =
     transform(kryo.readClassAndObject(in))
 }
 

@@ -15,10 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.flink.runtime.types
+package org.apache.flink.table.api.runtime.types
 
+import com.esotericsoftware.kryo.serializers.FieldSerializer
 import com.twitter.chill._
-import org.apache.flink.api.java.typeutils.runtime.kryo.FlinkChillPackageRegistrar
+import org.apache.flink.runtime.checkpoint.{StateObjectCollection, StateObjectCollectionSerializer}
+import org.apache.flink.streaming.util.serialize.FlinkChillPackageRegistrar
 
 import scala.collection.immutable.{ArraySeq, BitSet, HashMap, HashSet, ListMap, ListSet, NumericRange, Queue, Range, SortedMap, SortedSet}
 import scala.collection.mutable
@@ -27,53 +29,16 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
 
-/*
-This code is copied as is from Twitter Chill 0.7.4 because we need to user a newer chill version
-but want to ensure that the serializers that are registered by default stay the same.
-The only changes to the code are those that are required to make it compile and pass checkstyle
-checks in our code base.
- */
-
 /**
- * This class has a no-arg constructor, suitable for use with reflection instantiation It has no
- * registered serializers, just the standard Kryo configured for Kryo.
+ * Makes an empty instantiator then registers everything. This is called by reflection from
+ * [[org.apache.flink.api.java.typeutils.runtime.kryo.KryoSerializer]]'s private `getKryoInstance()`.
+ *
+ * This code is a modified copy [[com.twitter.chill.ScalaKryoInstantiator]] based on customziations made in Flink 1.x,
+ * with a few of our own additions.
+ * Note that Kryo instantiator in Flink 2.x is different because it removed Chill dependency along with
+ * support of Scala types that aren't required for Flink itself.
  */
-class EmptyFlinkScalaKryoInstantiator extends KryoInstantiator {
-  override def newKryo: KryoBase = {
-    val k = new KryoBase
-    k.setRegistrationRequired(false)
-    k.setInstantiatorStrategy(new org.objenesis.strategy.StdInstantiatorStrategy)
-
-    // Handle cases where we may have an odd classloader setup like with libjars
-    // for hadoop
-    val classLoader = Thread.currentThread.getContextClassLoader
-    k.setClassLoader(classLoader)
-
-    k
-  }
-}
-
-object FlinkScalaKryoInstantiator extends Serializable {
-  private val mutex = new AnyRef with Serializable // some serializable object
-  @transient private var kpool: KryoPool = null
-
-  /** Return a KryoPool that uses the FlinkScalaKryoInstantiator */
-  def defaultPool: KryoPool = mutex.synchronized {
-    if (null == kpool) {
-      kpool = KryoPool.withByteArrayOutputStream(guessThreads, new FlinkScalaKryoInstantiator)
-    }
-    kpool
-  }
-
-  private def guessThreads: Int = {
-    val cores = Runtime.getRuntime.availableProcessors
-    val GUESS_THREADS_PER_CORE = 4
-    GUESS_THREADS_PER_CORE * cores
-  }
-}
-
-/** Makes an empty instantiator then registers everything */
-class FlinkScalaKryoInstantiator extends EmptyFlinkScalaKryoInstantiator {
+class FlinkScalaKryoInstantiator extends EmptyScalaKryoInstantiator {
   override def newKryo: KryoBase = {
     val k = super.newKryo
     new AllScalaRegistrar().apply(k)
@@ -86,8 +51,9 @@ class ScalaCollectionsRegistrar extends IKryoRegistrar {
   def apply(newK: Kryo): Unit = {
     // for binary compat this is here, but could be moved to RichKryo
     def useField[T](cls: Class[T]): Unit = {
-      val fs = new com.esotericsoftware.kryo.serializers.FieldSerializer(newK, cls)
-      fs.setIgnoreSyntheticFields(false) // scala generates a lot of these attributes
+      val fsConfig = new FieldSerializer.FieldSerializerConfig
+      fsConfig.setIgnoreSyntheticFields(false) // scala generates a lot of these attributes
+      val fs = new com.esotericsoftware.kryo.serializers.FieldSerializer(newK, cls, fsConfig)
       newK.register(cls, fs)
     }
     // The wrappers are private classes:
@@ -155,17 +121,6 @@ class ScalaCollectionsRegistrar extends IKryoRegistrar {
   }
 }
 
-// In Scala 2.13 all java collections class wrappers were rewritten from case class to regular class. Now kryo does not
-// serialize them properly, so this class was added to fix this issue. It might not be needed in the future, when flink
-// or twitter-chill updates kryo.
-class JavaWrapperScala2_13Registrar extends IKryoRegistrar {
-  def apply(newK: Kryo): Unit = {
-    newK.register(JavaWrapperScala2_13Serializers.mapSerializer.wrapperClass, JavaWrapperScala2_13Serializers.mapSerializer)
-    newK.register(JavaWrapperScala2_13Serializers.setSerializer.wrapperClass, JavaWrapperScala2_13Serializers.setSerializer)
-    newK.register(JavaWrapperScala2_13Serializers.listSerializer.wrapperClass, JavaWrapperScala2_13Serializers.listSerializer)
-  }
-}
-
 /** Registers all the scala (and java) serializers we have */
 class AllScalaRegistrar extends IKryoRegistrar {
   def apply(k: Kryo): Unit = {
@@ -179,7 +134,7 @@ class AllScalaRegistrar extends IKryoRegistrar {
     k.forClass[Symbol](new KSerializer[Symbol] {
       override def isImmutable = true
       def write(k: Kryo, out: Output, obj: Symbol): Unit = out.writeString(obj.name)
-      def read(k: Kryo, in: Input, cls: Class[Symbol]) = Symbol(in.readString)
+      def read(k: Kryo, in: Input, cls: Class[_ <: Symbol]): Symbol = Symbol(in.readString)
     }).forSubclass[Regex](new RegexSerializer)
       .forClass[ClassTag[Any]](new ClassTagSerializer[Any])
       .forSubclass[Manifest[Any]](new ManifestSerializer[Any])
@@ -189,6 +144,7 @@ class AllScalaRegistrar extends IKryoRegistrar {
     val boxedUnit = scala.runtime.BoxedUnit.UNIT
     k.register(boxedUnit.getClass, new SingletonSerializer(boxedUnit))
     new FlinkChillPackageRegistrar().registerSerializers(k)
+    k.addDefaultSerializer(classOf[StateObjectCollection[_]], new StateObjectCollectionSerializer())
   }
 }
 

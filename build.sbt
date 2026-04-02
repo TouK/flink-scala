@@ -8,14 +8,17 @@ scalaVersion := scala213
 crossScalaVersions := List(scala213)
 
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
-flinkV := "1.20.3"
-
-lazy val scalaTestV = "3.2.19"
+flinkV := "2.2.0"
+val flinkKryoV = "5.6.2"
+val chillV = "1.0.0"
+val scalaTestV = "3.2.19"
 
 lazy val buildInfoSettings = Seq(
   buildInfoKeys    := Seq[BuildInfoKey](name, version),
   buildInfoKeys ++= Seq[BuildInfoKey](
-    "flinkVersion" -> flinkV,
+    "flinkVersion" -> flinkV.value,
+    "kryoVersion"  -> flinkKryoV,
+    "chillVersion" -> chillV,
   ),
   buildInfoPackage := "pl.touk.nussknacker",
   buildInfoObject  := "FlinkScalaBuildInfo",
@@ -23,13 +26,15 @@ lazy val buildInfoSettings = Seq(
 )
 
 lazy val assemblySettings = Seq(
+  // exclude all provided dependencies from assembly
+  assembly / fullClasspath := {
+    val cp                   = (assembly / fullClasspath).value
+    val providedDependencies = update.map(f => f.select(configurationFilter("provided"))).value
+    cp filter { f => !providedDependencies.contains(f.data) }
+  },
   assembly / artifact := {
     val art = (assembly / artifact).value
     art.withClassifier(Some("assembly"))
-  },
-  assembly / assemblyMergeStrategy := {
-    case PathList(ps@_*) if ps.last == "module-info.class" => MergeStrategy.discard
-    case x => MergeStrategy.defaultMergeStrategy(x)
   },
   addArtifact(assembly / artifact, assembly)
 )
@@ -79,11 +84,12 @@ lazy val root = (project in file("."))
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "com.twitter" %% "chill" % "0.9.5" exclude("com.esotericsoftware", "kryo-shaded"),
       "org.apache.flink" % "flink-streaming-java" % flinkV.value % Provided,
-      "com.esotericsoftware.kryo" % "kryo" % "2.24.0" % Provided,
+      "pl.touk" %% "chill" % chillV,
+      "com.esotericsoftware" % "kryo" % flinkKryoV % Provided,
       "org.scalatest" %% "scalatest" % scalaTestV % Test,
-    )
+    ),
+    resolvers ++= Seq(Resolver.sonatypeCentralSnapshots),
   )
   .settings(buildInfoSettings *)
   .settings(assemblySettings *)
