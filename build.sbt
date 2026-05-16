@@ -8,7 +8,7 @@ scalaVersion := scala213
 crossScalaVersions := List(scala213)
 
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
-flinkV := "2.2.0"
+flinkV := "2.2.1"
 val flinkKryoV = "5.6.2"
 val chillV = "1.0.0"
 val scalaTestV = "3.2.19"
