@@ -15,7 +15,5 @@ class FlinkScalaBuildInfoSpec  extends AnyFlatSpec with Matchers {
     buildInfo.name shouldBe "flink-scala"
     buildInfo.version should startWith regex "\\d"
     buildInfo.flinkVersion should startWith regex "\\d"
-    buildInfo.kryoVersion should startWith regex "\\d"
-    buildInfo.chillVersion should startWith regex "\\d"
   }
 }

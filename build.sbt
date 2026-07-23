@@ -1,5 +1,3 @@
-import sbtassembly.MergeStrategy
-
 name := "flink-scala"
 
 val scala213 = "2.13.18"
@@ -9,16 +7,12 @@ crossScalaVersions := List(scala213)
 
 val flinkV = settingKey[String]("Flink version") // to extract using `show flinkV`
 flinkV := "2.2.1"
-val flinkKryoV = "5.6.2"
-val chillV = "1.0.0"
-val scalaTestV = "3.2.19"
+val scalaTestV = "3.2.20"
 
 lazy val buildInfoSettings = Seq(
   buildInfoKeys    := Seq[BuildInfoKey](name, version),
   buildInfoKeys ++= Seq[BuildInfoKey](
     "flinkVersion" -> flinkV.value,
-    "kryoVersion"  -> flinkKryoV,
-    "chillVersion" -> chillV,
   ),
   buildInfoPackage := "pl.touk.nussknacker",
   buildInfoObject  := "FlinkScalaBuildInfo",
@@ -26,12 +20,6 @@ lazy val buildInfoSettings = Seq(
 )
 
 lazy val assemblySettings = Seq(
-  // exclude all provided dependencies from assembly
-  assembly / fullClasspath := {
-    val cp                   = (assembly / fullClasspath).value
-    val providedDependencies = update.map(f => f.select(configurationFilter("provided"))).value
-    cp filter { f => !providedDependencies.contains(f.data) }
-  },
   assembly / artifact := {
     val art = (assembly / artifact).value
     art.withClassifier(Some("assembly"))
@@ -84,12 +72,8 @@ lazy val root = (project in file("."))
       "org.scala-lang" % "scala-library" % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "org.apache.flink" % "flink-streaming-java" % flinkV.value % Provided,
-      "pl.touk" %% "chill" % chillV,
-      "com.esotericsoftware" % "kryo" % flinkKryoV % Provided,
       "org.scalatest" %% "scalatest" % scalaTestV % Test,
     ),
-    resolvers ++= Seq(Resolver.sonatypeCentralSnapshots),
   )
   .settings(buildInfoSettings *)
   .settings(assemblySettings *)
