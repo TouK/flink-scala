@@ -13,13 +13,13 @@ For more refer to <https://issues.apache.org/jira/browse/FLINK-13414>.
 ```bash
 rm $FLINK_HOME/lib/flink-scala*.jar
 
-wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.13/2.0.1/flink-scala_2.13-2.0.1-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.13-2.0.1-assembly.jar
+wget https://repo1.maven.org/maven2/pl/touk/flink-scala_2.13/2.0.2/flink-scala_2.13-2.0.2-assembly.jar -O $FLINK_HOME/lib/flink-scala_2.13-2.0.2-assembly.jar
 ```
 
 ## Using as a lib (probably only sufficient when child-first classloading is enabled on flink)
 
 ```scala
-libraryDependencies += "pl.touk" %% "flink-scala" % "2.0.1"
+libraryDependencies += "pl.touk" %% "flink-scala" % "2.0.2"
 ```
 
 ## Pre-built Flink images
